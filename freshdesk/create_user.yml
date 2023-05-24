@@ -1,0 +1,38 @@
+---
+- name: Create Freshdesk user
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Fail if some variable is undefined
+      fail:
+        msg: "{{ item }} is not defined"
+      loop:
+        - email
+        - freshdesk_domain
+        - freshdesk_api_key
+        - slack_token
+      when: vars[item] is undefined
+
+    - name: Create user in Freshdesk
+      uri:
+        url: "https://{{ freshdesk_domain }}.freshdesk.com/api/v2/contacts"
+        method: POST
+        return_content: yes
+        status_code: 200
+        validate_certs: no
+        headers:
+          Authorization: "Basic {{ freshdesk_api_key }}:"
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          name: "{{ fullname }}"
+          email: "{{ email }}"
+      register: result
+
+    - name: Alert about user creation
+      slack:
+        token: "{{ slack_token }}"
+        msg: "Freshdesk user {{ email }} was created."
+        channel: "#ansible-tower"
+        validate_certs: no
+

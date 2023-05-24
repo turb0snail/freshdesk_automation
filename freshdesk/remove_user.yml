@@ -1,0 +1,58 @@
+---
+- name: Fail if some variable is undefined
+  fail:
+    when: "{{ item }} is not defined"
+  loop:
+    - email
+    - freshdesk_domain
+    - freshdesk_api_key
+    - slack_token
+  loop_control:
+    loop_var: item
+
+- name: Find the user
+  uri:
+    url: "https://{{ freshdesk_domain }}.freshdesk.com/api/v2/search/contacts?query=\"email is {{ email }}\""
+    method: GET
+    return_content: yes
+    status_code: 200
+    validate_certs: no
+    headers:
+      Authorization: "Basic {{ freshdesk_api_key }}:"
+      Content-Type: "application/json"
+  register: result
+
+- name: Write user_id variable
+  set_fact:
+    user_id: "{{ result.json | json_query(jmesquery) }}"
+  vars:
+    jmesquery: "results[].id"
+
+- name: User not found
+  meta: end_play
+  when: (user_id | length) == 0
+
+- name: Write user_id variable
+  set_fact:
+    user_id: "{{ user_id | first }}"
+
+- debug:
+    var: user_id
+
+- name: Delete user from freshdesk
+  uri:
+    url: "https://{{ freshdesk_domain }}.freshdesk.com/api/v2/contacts/{{ user_id }}"
+    method: DELETE
+    status_code: 204
+    validate_certs: no
+    headers:
+      Authorization: "Basic {{ freshdesk_api_key }}:"
+      Content-Type: "application/json"
+
+- name: Alert about contact deletion
+  slack:
+    token: "{{ slack_token }}"
+    msg: "Freshdesk contact {{ email }} was deleted."
+    channel: "#ansible-tower"
+    validate_certs: no
+

@@ -1,0 +1,23 @@
+- name: Freshdesk Playbook
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Add user to Freshdesk
+      uri:
+        url: https://sentriumllc.freshdesk.com/api/v2/contacts
+        method: POST
+        user: I1a8dxWc4CJyvdp1cWda
+        password: X
+        force_basic_auth: yes
+        body_format: json
+        body:
+          name: 'backdesk'
+          email: 'backdesk@sentrium.net'
+      register: response
+
+    - name: Check response status code
+      fail:
+        msg: "Failed to add user to Freshdesk. Status code: {{ response.status }}"
+      when: response.status != 200
+
+
