@@ -21,7 +21,7 @@
         status_code: 200
         validate_certs: no
         headers:
-          Authorization: "Basic {{ (freshdesk_api_key + ':X') | b64encode }}:"
+          Authorization: "Basic {{ freshdesk_api_key: | b64encode }}:"
           Content-Type: "application/json"
         body_format: json
         body:
