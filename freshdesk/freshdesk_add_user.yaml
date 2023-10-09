@@ -4,15 +4,15 @@
   tasks:
     - name: Add user to Freshdesk
       uri:
-        url: https://sentriumllc.freshdesk.com/api/v2/contacts
+        url: xxx
         method: POST
-        user: I1a8dxWc4CJyvdp1cWda
+        user: xxx
         password: X
         force_basic_auth: yes
         body_format: json
         body:
-          name: 'backdesk'
-          email: 'backdesk@sentrium.net'
+          name: 'xxx'
+          email: 'xxx'
       register: response
 
     - name: Check response status code
