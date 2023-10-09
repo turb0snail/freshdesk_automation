@@ -4,9 +4,9 @@
   tasks:
     - name: delete_user_from_freshdesk
       uri:
-        url: https://sentriumllc.freshdesk.com/api/v2/contacts/{{ 150023193984 }}   
+        url: xxx   
         method: DELETE
-        user: I1a8dxWc4CJyvdp1cWda
+        user: xxx
         password: X
         force_basic_auth: yes
       register: response
